@@ -25,15 +25,12 @@ app.get('/webhooks', (req, res) => {
 app.post('/webhooks', (req, res) => {
   console.log('----------------- POST /wa/webhooks  -------------------');
   let bodyreq = req.body;
-  console.log(JSON.stringify(bodyreq, null, 2));
-
-  console.log('res :>> ', res);
 
   if (bodyreq.object) {
     if ( bodyreq.entry && bodyreq.entry[0].changes && bodyreq.entry[0].changes[0].value.message 
       && bodyreq.entry[0].changes[0].value.message[0]) {
       console.log('Echo message');
-      console.log(res);
+      console.log(JSON.stringify(bodyreq, null, 2));
       res.sendStatus(200);
     }
   }

@@ -2,11 +2,38 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-app.get('/wa/webhooks', (req, res) => {
+app.get('/webhooks', (req, res) => {
   console.log('----------------- GET /wa/webhooks  -------------------');
-  const verificationToken = req.query.verificationToken;
-  const token = 'f0b4d6d7e0c8b8b';
-  res.status(200).json({ message: 'Webhook GET endpoint' });
+
+  const mode = req.query['hub.mode'];
+  const challenge = req.query['hub.challenge'];
+  const verifyToken = req.query['hub.verify_token'];
+
+  if (mode && verifyToken) {
+    if (mode === 'subscribe' && verifyToken === 'f0b4d6d7e0c8b8b') {
+      console.log('Webhook verified');
+      res.status(200).send(challenge);
+    } else {
+      console.log('Webhook verification failed');
+      res.sendStatus(403);
+    }
+  }
+});
+
+app.post('/webhooks', (req, res) => {
+  console.log('----------------- POST /wa/webhooks  -------------------');
+
+  const body = req.body;
+
+  if (body.object === 'page') {
+    body.entry.forEach((entry) => {
+      const webhookEvent = entry.messaging[0];
+      console.log(webhookEvent);
+    });
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 app.use((req, res) => {
